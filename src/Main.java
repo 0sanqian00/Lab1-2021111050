@@ -156,3 +156,55 @@ public class Main {
             e.printStackTrace();
         }
     }
+
+    public static String calcShortestPath(String word1, String word2) {
+        if (!graph.containsKey(word1) || !graph.containsKey(word2)) {
+            return "No " + word1 + " or " + word2 + " in the graph!";
+        }
+
+
+        //初始时两个顶点之间的距离是无穷大，除了对角线元素，它们被设置为0，因为每个顶点到自身的距离是0。
+        for (int i = 0; i < V; i++) {
+            for (int j = 0; j < V; j++) {
+                dist[i][j] = (i == j) ? 0 : Integer.MAX_VALUE;
+            }
+        }
+        //为图中的每个顶点填充邻接矩阵。如果两个顶点之间有边相连，则将对应的邻接矩阵元素设置为1，表示权重为1
+        // 填充邻接矩阵
+        for (Map.Entry<String, Set<String>> entry : graph.entrySet()) {
+            String word = entry.getKey();
+            Set<String> neighbors = entry.getValue();
+            for (String neighbor : neighbors) {
+                int index1 = getIndex(word);
+                int index2 = getIndex(neighbor);
+                if (index1 != -1 && index2 != -1) {
+                    dist[index1][index2] = 1;
+                }
+            }
+        }
+
+        // 使用弗洛伊德算法，通过中间顶点k来更新顶点对(i, j)的最短路径。如果通过k的路径比已知的(i, j)路径更短，则更新dist[i][j]
+        for (int k = 0; k < V; k++) {
+            for (int i = 0; i < V; i++) {
+                for (int j = 0; j < V; j++) {
+                    if (dist[i][k] != Integer.MAX_VALUE && dist[k][j] != Integer.MAX_VALUE
+                            && dist[i][k] + dist[k][j] < dist[i][j]) {
+                        dist[i][j] = dist[i][k] + dist[k][j];
+                    }
+                }
+            }
+        }
+
+        // 找到word1和word2对应的索引
+        int index1 = getIndex(word1);
+        int index2 = getIndex(word2);
+
+        // 如果最短距离是无穷大，说明word1和word2不相连
+        if (dist[index1][index2] == Integer.MAX_VALUE) {
+            return "No path between " + word1 + " and " + word2 + ".";
+        }
+
+        // 返回word1和word2之间的最短路径长度
+
+        return "The shortest path distance from " + word1 + " to " + word2 + " is: " + dist[index1][index2];
+    }
