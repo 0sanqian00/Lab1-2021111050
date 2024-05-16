@@ -271,4 +271,17 @@ public class Main {
         return input.replace("\"", "\\\"");
     }
 
-    //辅助函数
+    // 辅助函数，用于获取单词在邻接矩阵中的索引
+    private static int getIndex(String word) {
+        int index = 0;
+        for (String w : graph.keySet()) {
+            if (w.equals(word)) {
+                return index;
+            }
+            index++;
+        }
+        return -1;
+
+        //
+    }
+
