@@ -88,3 +88,36 @@ public class Main {
 
         //
     }
+
+
+    public static String queryBridgeWords(String word1, String word2) {
+        if (!graph.containsKey(word1) || !graph.containsKey(word2)) {
+            return "No " + word1 + " or " + word2 + " in the graph!";
+        }
+
+        Set<String> bridgeWords = new HashSet<>();
+        Set<String> successorsWord1 = graph.get(word1);
+        Set<String> predecessorsWord2 = new HashSet<>(graph.size()); // 记录word2的前驱节点
+
+        // 寻找word2的前驱节点
+        for (String key : graph.keySet()) {
+            Set<String> successors = graph.get(key);
+            if (successors.contains(word2)) {
+                predecessorsWord2.add(key);
+            }
+        }
+
+        // 遍历word1的所有后继节点，检查是否也是word2的前驱节点
+        for (String successor : successorsWord1) {
+            if (predecessorsWord2.contains(successor)) {
+                bridgeWords.add(successor);
+            }
+        }
+
+        if (bridgeWords.isEmpty()) {
+            return "No bridge words from " + word1 + " to " + word2 + "!";
+        } else {
+            return "The bridge words from " + word1 + " to " + word2 + " are: " +
+                    String.join(", ", bridgeWords);
+        }
+    }
