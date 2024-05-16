@@ -124,3 +124,35 @@ public class Main {
         //
         //
     }
+
+    private static void readTextFileAndBuildGraph(String filePath) {
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                // 转换为小写，并将非字母字符替换为空格
+                line = line.toLowerCase().replaceAll("[^a-z ]", " ");
+
+                // 分一个或多个连续的空白字符来分割字符串
+                String[] words = line.split("\\s+");
+
+                for (int i = 0; i < words.length - 1; i++) {
+                    String currentWord = words[i];
+                    String nextWord = words[i + 1];
+
+                    // 计算每个单词的出现频率。如果currentWord不在映射中，则默认为0，然后加1。
+                    wordFrequency.put(currentWord, wordFrequency.getOrDefault(currentWord, 0) + 1);
+
+                    // 添加边和更新权重 如果不存在则创建一个新的HashSet 将nextWord添加到这个HashSet中
+                    graph.computeIfAbsent(currentWord, k -> new HashSet<>()).add(nextWord);
+                    // updateWeight方法更新图中两个单词之间边的权重
+                    updateWeight(currentWord, nextWord);
+                }
+            }
+            // 获取图的顶点数
+            V = graph.size();
+            // 初始化邻接矩阵
+            dist = new int[V][V];
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
