@@ -285,3 +285,41 @@ public class Main {
         //
     }
 
+    // 根据bridge word生成新文本
+    public static String generateNewText(String inputText) {
+        // 使用空格分割输入文本，得到单词数组
+        String[] words = inputText.toLowerCase().split("\\s+");
+
+        // 结果列表，用于存储新文本的单词
+        List<String> newWords = new ArrayList<>();
+
+        // 用于随机选择桥接词
+        Random random = new Random();
+
+        // 遍历单词数组，查找每对相邻单词的桥接词
+        for (int i = 0; i < words.length - 1; i++) {
+            // 添加当前单词
+            newWords.add(words[i]);
+
+            // 查询这对相邻单词的桥接词
+            String bridgeWordsResult = queryBridgeWords(words[i], words[i + 1]);
+            // 如果桥接词结果以"No bridge words"开头，则表示没有桥接词
+            if (bridgeWordsResult.startsWith("No")) {
+                // 不插入任何单词，继续
+                continue;
+            }
+
+            // 如果有桥接词，将其添加到结果列表
+            // 桥接词以逗号分隔，我们需要分割并随机选择一个
+            String[] bridgeWordArray = bridgeWordsResult.substring(bridgeWordsResult.indexOf(':') + 2).trim().split(", ");
+            // 随机选择一个桥接词
+            String bridgeWord = bridgeWordArray[random.nextInt(bridgeWordArray.length)];
+            newWords.add(bridgeWord);
+        }
+
+        // 添加最后一个单词
+        newWords.add(words[words.length - 1]);
+
+        // 将结果列表转换为字符串，使用空格连接单词
+        return String.join(" ", newWords);
+    }
