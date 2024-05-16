@@ -324,3 +324,59 @@ public class Main {
         return String.join(" ", newWords);
         //
     }
+
+    // 随机游走
+    public static void randomWalk() {
+
+        try {
+            Set<String> visitedEdges = new HashSet<>();
+            List<String> walkPath = new ArrayList<>();
+
+            if (graph.isEmpty()) {
+                System.out.println("The graph is empty!");
+            }
+
+            // 获取所有节点
+            Collection<String> allNodes = graph.keySet();
+
+            // 随机选择一个起始节点
+            String startNode = allNodes.stream()
+                    .skip(random.nextInt(allNodes.size()))
+                    .findFirst()
+                    .orElseThrow();
+
+            walkPath.add(startNode);
+
+            String currentNode = startNode;
+            while (currentNode != null && !stopRandomWalk) {
+                // 获取当前节点的所有邻居节点
+                Set<String> neighbors = graph.get(currentNode);
+                // 随机选择一个邻居节点作为下一步
+                String nextNode = neighbors.isEmpty() ? null : neighbors.toArray(new String[0])[random.nextInt(neighbors.size())];
+
+                // 检查是否已经访问过从当前节点到该邻居的边
+                String edgeKey = currentNode + "-" + nextNode; // 简化的边表示方法
+                if (visitedEdges.contains(edgeKey)) {
+                    break; // 如果遇到重复边，则停止游走
+                }
+
+                if (nextNode != null) {
+                    walkPath.add(nextNode);
+                    visitedEdges.add(edgeKey);
+                    currentNode = nextNode;
+                }
+            }
+
+            // 如果用户请求停止，则立即退出
+            if (stopRandomWalk) {
+                System.out.println("Random walk stopped by user.");
+            }
+
+            // 将游走路径转换为字符串
+            System.out.println(String.join(" -> ", walkPath));
+        } catch (Exception e) {
+            System.out.println("No edge exist ,please enter 's'");
+        }
+
+
+    }
