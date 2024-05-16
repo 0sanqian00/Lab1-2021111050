@@ -208,3 +208,65 @@ public class Main {
 
         return "The shortest path distance from " + word1 + " to " + word2 + " is: " + dist[index1][index2];
     }
+
+    private static void updateWeight(String from, String to) {
+        // 获取从from到to的现有权重，如果没有设置，则默认为0
+        int currentWeight = edgeWeights.getOrDefault(from, new HashMap<>()).getOrDefault(to, 0);
+
+        // 权重加1，因为每次调用此方法意味着A和B又相邻出现了一次
+        currentWeight += 1;
+
+        // 更新边的权重
+        edgeWeights.computeIfAbsent(from, k -> new HashMap<>()).put(to, currentWeight);
+    }
+
+    // 展示有向图
+    public static void showDirectedGraph() {
+        // DOT 文件将被创建在用户目录下
+        String dotFilePath = "graph.dot";
+        String graphvizPath = "C:\\Users\\三谦\\Desktop\\软件工程\\Lab1\\Graphviz-11.0.0-win64\\bin\\dot.exe";
+        String pngFilePath = "C:\\Users\\三谦\\Desktop\\软件工程\\Lab1\\Lab1\\graph.png";
+
+        // 创建DOT文件
+        try (PrintWriter out = new PrintWriter(new FileWriter(dotFilePath))) {
+            out.println("digraph G {");
+            out.println("  rankdir=LR;"); // 设置图的方向从左到右
+
+            // 添加节点
+            for (String node : graph.keySet()) {
+                out.println("  \"" + escapeDotString(node) + "\" [shape=circle];");
+            }
+
+            // 添加边和权重
+            for (Map.Entry<String, Set<String>> entry : graph.entrySet()) {
+                String fromNode = entry.getKey();
+                for (String toNode : entry.getValue()) {
+                    // 获取边的权重
+                    int weight = edgeWeights.getOrDefault(fromNode, new HashMap<>()).getOrDefault(toNode, 0);
+                    // 将权重作为标签添加到边
+                    out.printf("  \"%s\" -> \"%s\" [label=\"%d\"];\n", escapeDotString(fromNode), escapeDotString(toNode), weight);
+                }
+            }
+
+            out.println("}");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        // 使用Graphviz命令行工具生成图形
+        try {
+            // 构建dot命令
+            String command = graphvizPath + " -Tpng " + dotFilePath + " -o " + pngFilePath;
+            Process process = Runtime.getRuntime().exec(command);
+            process.waitFor();
+            System.out.println("Graph visualization generated as '" + pngFilePath + "'");
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // 转义DOT语言特殊字符
+    private static String escapeDotString(String input) {
+        return input.replace("\"", "\\\"");
+    }
